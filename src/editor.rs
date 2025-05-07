@@ -1,4 +1,5 @@
 use crossterm::event::{Event, Event::Key, KeyCode::Char, KeyEvent, KeyModifiers, read};
+use std::io::Error;
 mod terminal;
 use terminal::Terminal;
 
@@ -18,7 +19,7 @@ impl Editor {
         result.unwrap();
     }
 
-    fn repl(&mut self) -> Result<(), std::io::Error> {
+    fn repl(&mut self) -> Result<(), Error> {
         loop {
             self.refresh_screen()?;
             if self.should_quit {
@@ -44,23 +45,27 @@ impl Editor {
         }
     }
 
-    fn refresh_screen(&self) -> Result<(), std::io::Error> {
+    fn refresh_screen(&self) -> Result<(), Error> {
+        Terminal::hide_cursor()?;
         if self.should_quit {
             Terminal::clear_screen()?;
             Terminal::move_cursor_to(0, 0)?;
-            print!("Goodbye.\r\n");
+            Terminal::print("Goodbye.\r\n")?;
         } else {
             Self::draw_rows()?;
             Terminal::move_cursor_to(0, 0)?;
         }
+        Terminal::show_cursor()?;
+        Terminal::execute()?;
         Ok(())
     }
 
-    fn draw_rows() -> Result<(), std::io::Error> {
+    fn draw_rows() -> Result<(), Error> {
         let (_, rows) = Terminal::size()?;
         for row in 0..rows {
             Terminal::move_cursor_to(0, row)?;
-            print!("~");
+            Terminal::clear_line()?;
+            Terminal::print("~")?;
         }
 
         Ok(())
