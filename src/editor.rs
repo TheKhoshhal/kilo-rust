@@ -53,6 +53,7 @@ impl Editor {
             Terminal::print("Goodbye.\r\n")?;
         } else {
             Self::draw_rows()?;
+            Self::draw_welcone()?;
             Terminal::move_cursor_to(0, 0)?;
         }
         Terminal::show_cursor()?;
@@ -68,6 +69,16 @@ impl Editor {
             Terminal::print("~")?;
         }
 
+        Ok(())
+    }
+
+    fn draw_welcone() -> Result<(), Error> {
+        let (cols, rows) = Terminal::size()?;
+        let message = "kilo editor -- version 1.0";
+        let col_loc = cols.saturating_sub(message.len() as u16) / 2;
+        let row_loc = rows / 3;
+        Terminal::move_cursor_to(col_loc, row_loc)?;
+        Terminal::print(&message)?;
         Ok(())
     }
 }
